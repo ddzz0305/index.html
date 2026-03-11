@@ -1,0 +1,945 @@
+<!doctype html>
+
+<html lang="zh-CN">
+
+<head>
+
+  <meta charset="utf-8" />
+
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+  <title>猫猫学习伙伴</title>
+
+  <style>
+
+    :root{
+
+      --bg1:#f7f4ff;
+
+      --bg2:#fff5f2;
+
+      --text:#2b2b2b;
+
+      --muted:#7a7a7a;
+
+      --btn:#e9b38b;
+
+      --btn2:#e2a779;
+
+      --card:#ffffffcc;
+
+      --shadow:0 10px 30px rgba(0,0,0,.12);
+
+      --radius:18px;
+
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+
+      margin:0;
+
+      font-family: ui-sans-serif, system-ui, -apple-system, "PingFang SC","Microsoft YaHei", Arial;
+
+      background: radial-gradient(1200px 800px at 30% 20%, var(--bg1), transparent),
+
+                  radial-gradient(1200px 800px at 70% 80%, var(--bg2), transparent),
+
+                  #fafafa;
+
+      color:var(--text);
+
+      min-height:100vh;
+
+      display:flex;
+
+      align-items:center;
+
+      justify-content:center;
+
+      padding:24px;
+
+    }
+
+    .wrap{width:min(920px, 100%); display:flex; gap:18px; align-items:stretch;}
+
+    .panel{
+
+      flex:1;
+
+      background:var(--card);
+
+      backdrop-filter: blur(10px);
+
+      border-radius: var(--radius);
+
+      box-shadow: var(--shadow);
+
+      padding:26px 26px 18px;
+
+      position:relative;
+
+      overflow:hidden;
+
+    }
+
+    .title{
+
+      font-size:34px;
+
+      font-weight:800;
+
+      letter-spacing:1px;
+
+      display:flex;
+
+      align-items:center;
+
+      gap:10px;
+
+      margin:0;
+
+    }
+
+    .subtitle{margin:8px 0 18px; color:var(--muted)}
+
+    .timer{
+
+      font-size:86px;
+
+      font-weight:900;
+
+      letter-spacing:2px;
+
+      margin:6px 0 14px;
+
+    }
+
+    .controls{display:flex; gap:10px; flex-wrap:wrap}
+
+    button{
+
+      border:0;
+
+      cursor:pointer;
+
+      border-radius:14px;
+
+      padding:12px 18px;
+
+      font-size:16px;
+
+      box-shadow: 0 8px 18px rgba(0,0,0,.08);
+
+      transition: transform .06s ease;
+
+      user-select:none;
+
+    }
+
+    button:active{transform: translateY(1px)}
+
+    .btn{background:var(--btn); color:#3b2a1c; font-weight:700}
+
+    .btn.secondary{background:#eee; color:#333; font-weight:700}
+
+    .status{margin-top:14px; color:var(--muted); font-weight:700}
+
+    .hint{margin-top:6px; color:var(--muted); font-size:13px}
+
+
+
+    /* 右下角猫 */
+
+    .catDock{
+
+      width:280px;
+
+      background:var(--card);
+
+      backdrop-filter: blur(10px);
+
+      border-radius: var(--radius);
+
+      box-shadow: var(--shadow);
+
+      padding:16px;
+
+      position:relative;
+
+      display:flex;
+
+      flex-direction:column;
+
+      justify-content:space-between;
+
+      gap:10px;
+
+    }
+
+    .catBubble{
+
+      background:#ffffffd8;
+
+      border-radius:16px;
+
+      padding:12px 12px;
+
+      box-shadow: 0 8px 18px rgba(0,0,0,.06);
+
+      font-weight:700;
+
+      color:#444;
+
+      min-height:56px;
+
+      display:flex;
+
+      align-items:center;
+
+    }
+
+
+
+    .catFrame{
+
+      width:100%;
+
+      height:180px;
+
+      border-radius:16px;
+
+      background: #ffffffc8;
+
+      overflow:hidden;
+
+      position:relative;
+
+      display:flex;
+
+      align-items:center;
+
+      justify-content:center;
+
+      cursor:pointer;
+
+      border:1px solid rgba(0,0,0,.06);
+
+    }
+
+    .catFallback{
+
+      position:absolute;
+
+      inset:0;
+
+      display:grid;
+
+      place-items:center;
+
+      font-size:54px;
+
+      color:#999;
+
+    }
+
+    .catSmall{
+
+      width:100%;
+
+      height:100%;
+
+      object-fit:cover;
+
+      display:none;
+
+    }
+
+    .catBtn{
+
+      width:100%;
+
+      background:var(--btn2);
+
+      color:#3b2a1c;
+
+      font-weight:900;
+
+      padding:12px 14px;
+
+    }
+
+
+
+    /* 领养弹窗 */
+
+    .overlay{
+
+      position:fixed;
+
+      inset:0;
+
+      background:rgba(0,0,0,.38);
+
+      display:none;
+
+      align-items:center;
+
+      justify-content:center;
+
+      padding:18px;
+
+      z-index:50;
+
+    }
+
+    .modal{
+
+      width:min(520px, 100%);
+
+      background:white;
+
+      border-radius:22px;
+
+      box-shadow: var(--shadow);
+
+      padding:18px 18px 16px;
+
+    }
+
+    .modal h2{margin:6px 0 6px; font-size:22px}
+
+    .modal p{margin:0 0 12px; color:#666; line-height:1.4}
+
+    .row{display:flex; flex-wrap:wrap; gap:10px; margin:10px 0 14px}
+
+    .pill{
+
+      padding:10px 12px;
+
+      border-radius:999px;
+
+      background:#f2f2f2;
+
+      font-weight:800;
+
+    }
+
+    .pill.active{background:#ffe2c9}
+
+    .field{
+
+      display:flex;
+
+      gap:10px;
+
+      align-items:center;
+
+      margin:10px 0 14px;
+
+    }
+
+    input{
+
+      flex:1;
+
+      border:1px solid #ddd;
+
+      border-radius:12px;
+
+      padding:12px 12px;
+
+      font-size:15px;
+
+      outline:none;
+
+    }
+
+    .modalActions{display:flex; gap:10px; justify-content:flex-end}
+
+    .linkBtn{background:#f2f2f2; font-weight:800}
+
+
+
+    /* 大图预览 */
+
+    .bigOverlay{
+
+      position:fixed;
+
+      inset:0;
+
+      background:rgba(0,0,0,.55);
+
+      display:none;
+
+      align-items:center;
+
+      justify-content:center;
+
+      padding:18px;
+
+      z-index:60;
+
+    }
+
+    .bigImg{
+
+      width:min(720px, 100%);
+
+      max-height: 78vh;
+
+      object-fit:cover;
+
+      border-radius:18px;
+
+      background:#fff;
+
+      box-shadow: var(--shadow);
+
+    }
+
+  </style>
+
+</head>
+
+
+
+<body>
+
+  <div class="wrap">
+
+    <div class="panel">
+
+      <h1 class="title">🐾 猫猫学习伙伴</h1>
+
+      <div class="subtitle">我在呢，我们慢慢来～ 🌸</div>
+
+
+
+      <div class="timer" id="timeText">25:00</div>
+
+
+
+      <div class="controls">
+
+        <button class="btn" id="btnStart">开始专注</button>
+
+        <button class="btn secondary" id="btnPause">暂停</button>
+
+        <button class="btn secondary" id="btnReset">重置</button>
+
+      </div>
+
+
+
+      <div class="status" id="statusText">状态：未开始</div>
+
+      <div class="hint">小提示：右侧可以领养/换一只猫，点猫图可以看大图。</div>
+
+    </div>
+
+
+
+    <div class="catDock">
+
+      <div class="catBubble" id="catSpeech">（还没领养小猫）点下面“领养/换一只”～</div>
+
+
+
+      <div class="catFrame" id="catFrame" title="点我看大图">
+
+        <div id="fallbackSmall" class="catFallback">🐱</div>
+
+        <img id="catSmall" class="catSmall" alt="猫咪" />
+
+      </div>
+
+
+
+      <button class="catBtn" id="btnAdoptOpen">领养/换一只</button>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- 领养弹窗 -->
+
+  <div class="overlay" id="adoptOverlay" aria-hidden="true">
+
+    <div class="modal" role="dialog" aria-modal="true">
+
+      <h2>领养一只学习小猫 🐾</h2>
+
+      <p>先选偏好（可选），再给它取个名字（也可不填）。</p >
+
+
+
+      <div class="row" id="profileRow">
+
+        <button class="pill active" data-key="random" type="button">随机</button>
+
+        <button class="pill" data-key="orange" type="button">大橘猫</button>
+
+        <button class="pill" data-key="cow" type="button">奶牛猫</button>
+
+        <button class="pill" data-key="black" type="button">小黑猫</button>
+
+      </div>
+
+
+
+      <div class="field">
+
+        <input id="nameInput" placeholder="给小猫取个名字（可不填）" />
+
+      </div>
+
+
+
+      <div class="modalActions">
+
+        <button class="linkBtn" id="btnAdoptClose" type="button">取消</button>
+
+        <button class="btn" id="btnAdoptDo" type="button">确认领养</button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- 大图预览 -->
+
+  <div class="bigOverlay" id="bigOverlay" aria-hidden="true">
+
+    <img id="catBig" class="bigImg" alt="猫咪大图" />
+
+  </div>
+
+
+
+  <script>
+
+    // ===== 工具 =====
+
+    const $ = (id) => document.getElementById(id);
+
+
+
+    // ===== 番茄钟 =====
+
+    let totalSeconds = 25 * 60;
+
+    let leftSeconds  = totalSeconds;
+
+    let timerId = null;
+
+
+
+    function formatTime(sec){
+
+      const m = String(Math.floor(sec / 60)).padStart(2,'0');
+
+      const s = String(sec % 60).padStart(2,'0');
+
+      return `${m}:${s}`;
+
+    }
+
+    function renderTime(){ $("timeText").textContent = formatTime(leftSeconds); }
+
+    function setStatus(t){ $("statusText").textContent = `状态：${t}`; }
+
+
+
+    function startFocus(){
+
+      if(timerId) return;
+
+      setStatus("专注中");
+
+      timerId = setInterval(() => {
+
+        leftSeconds--;
+
+        if(leftSeconds <= 0){
+
+          leftSeconds = 0;
+
+          renderTime();
+
+          pauseFocus();
+
+          setStatus("完成啦！休息一下～");
+
+          say("太棒啦！我们完成一轮专注了～ 🎉");
+
+          return;
+
+        }
+
+        renderTime();
+
+      }, 1000);
+
+    }
+
+    function pauseFocus(){
+
+      if(timerId){
+
+        clearInterval(timerId);
+
+        timerId = null;
+
+      }
+
+      setStatus("已暂停");
+
+    }
+
+    function resetFocus(){
+
+      pauseFocus();
+
+      leftSeconds = totalSeconds;
+
+      renderTime();
+
+      setStatus("未开始");
+
+      say("我们重新来～慢慢来不着急 🌸");
+
+    }
+
+
+
+    // ===== 猫咪资料 & 图片池（本地，不走外网）=====
+
+    const CAT_POOL = {
+
+      orange: [
+
+        "assets/cats/orange1.jpg",
+
+        "assets/cats/orange2.jpg",
+
+      ],
+
+      cow: [
+
+        "assets/cats/cow1.jpg",
+
+        "assets/cats/cow2.jpg",
+
+      ],
+
+      black: [
+
+        "assets/cats/black1.jpg",
+
+        "assets/cats/black2.jpg",
+
+      ],
+
+      random: [] // random 由上面三类合并生成
+
+    };
+
+    CAT_POOL.random = [...CAT_POOL.orange, ...CAT_POOL.cow, ...CAT_POOL.black];
+
+
+
+    function pick(arr){
+
+      return arr[Math.floor(Math.random() * arr.length)];
+
+    }
+
+
+
+    function loadProfile(){
+
+      try{
+
+        const raw = localStorage.getItem("catStudyBuddyProfile");
+
+        return raw ? JSON.parse(raw) : null;
+
+      }catch(e){
+
+        return null;
+
+      }
+
+    }
+
+    function saveProfile(p){
+
+      localStorage.setItem("catStudyBuddyProfile", JSON.stringify(p));
+
+    }
+
+
+
+    function say(text){
+
+      $("catSpeech").textContent = text;
+
+    }
+
+
+
+    // 关键：这些 DOM 引用必须在 DOMContentLoaded 后拿，且在同一作用域里
+
+    let smallImg, bigImg, fallbackSmall;
+
+
+
+    function setCatImage(url){
+
+      // 先显示 fallback，再加载图片
+
+      fallbackSmall.style.display = "grid";
+
+      smallImg.style.display = "none";
+
+
+
+      // 绑定一次性 onload/onerror
+
+      smallImg.onload = () => {
+
+        fallbackSmall.style.display = "none";
+
+        smallImg.style.display = "block";
+
+      };
+
+      smallImg.onerror = () => {
+
+        // 路径不对/图片不存在：继续显示 fallback，不让页面崩
+
+        fallbackSmall.style.display = "grid";
+
+        smallImg.style.display = "none";
+
+        console.warn("图片加载失败：", url, "（请确认 assets/cats 下文件名是否一致）");
+
+      };
+
+
+
+      smallImg.src = url;
+
+      bigImg.src = url;
+
+    }
+
+
+
+    function applyProfile(p){
+
+      if(!p) return;
+
+      const name = (p.name && p.name.trim()) ? p.name.trim() : "我的小猫";
+
+      say(`你好呀，我是「${name}」～我们一起专注吧！🐾`);
+
+
+
+      // 每次应用都“随机一张”，保证每只猫不一样
+
+      const poolKey = p.prefKey || "random";
+
+      const url = pick(CAT_POOL[poolKey] || CAT_POOL.random);
+
+      p.url = url;
+
+      saveProfile(p);
+
+      setCatImage(url);
+
+    }
+
+
+
+    // ===== 领养弹窗 =====
+
+    let selectedKey = "random";
+
+
+
+    function openAdopt(){
+
+      $("adoptOverlay").style.display = "flex";
+
+      $("adoptOverlay").setAttribute("aria-hidden","false");
+
+    }
+
+    function closeAdopt(){
+
+      $("adoptOverlay").style.display = "none";
+
+      $("adoptOverlay").setAttribute("aria-hidden","true");
+
+    }
+
+
+
+    function openBigCat(){
+
+      const p = loadProfile();
+
+      if(!p || !p.url){
+
+        say("先领养一只小猫～再看大图喔 🐾");
+
+        return;
+
+      }
+
+      $("bigOverlay").style.display = "flex";
+
+      $("bigOverlay").setAttribute("aria-hidden","false");
+
+    }
+
+    function closeBigCat(){
+
+      $("bigOverlay").style.display = "none";
+
+      $("bigOverlay").setAttribute("aria-hidden","true");
+
+    }
+
+
+
+    // ===== 初始化（最重要：所有事件都在这里绑定）=====
+
+    document.addEventListener("DOMContentLoaded", () => {
+
+      smallImg = $("catSmall");
+
+      bigImg = $("catBig");
+
+      fallbackSmall = $("fallbackSmall");
+
+
+
+      // 番茄钟按钮
+
+      $("btnStart").addEventListener("click", startFocus);
+
+      $("btnPause").addEventListener("click", pauseFocus);
+
+      $("btnReset").addEventListener("click", resetFocus);
+
+
+
+      // 领养按钮
+
+      $("btnAdoptOpen").addEventListener("click", openAdopt);
+
+      $("btnAdoptClose").addEventListener("click", closeAdopt);
+
+
+
+      // 弹窗点遮罩关闭（点 modal 不关闭）
+
+      $("adoptOverlay").addEventListener("click", (e) => {
+
+        if(e.target === $("adoptOverlay")) closeAdopt();
+
+      });
+
+
+
+      // 选择偏好
+
+      $("profileRow").addEventListener("click", (e) => {
+
+        const btn = e.target.closest("button[data-key]");
+
+        if(!btn) return;
+
+        selectedKey = btn.dataset.key;
+
+
+
+        // 切换高亮
+
+        [...$("profileRow").querySelectorAll(".pill")].forEach(x => x.classList.remove("active"));
+
+        btn.classList.add("active");
+
+      });
+
+
+
+      // 确认领养
+
+      $("btnAdoptDo").addEventListener("click", () => {
+
+        const profile = {
+
+          prefKey: selectedKey,
+
+          name: $("nameInput").value || "",
+
+          adoptedAt: Date.now()
+
+        };
+
+        saveProfile(profile);
+
+        applyProfile(profile);
+
+        $("nameInput").value = "";
+
+        closeAdopt();
+
+        alert("领养成功！🐾");
+
+      });
+
+
+
+      // 大图预览
+
+      $("catFrame").addEventListener("click", openBigCat);
+
+      $("bigOverlay").addEventListener("click", closeBigCat);
+
+
+
+      // 启动
+
+      renderTime();
+
+      setStatus("未开始");
+
+
+
+      const existing = loadProfile();
+
+      if(existing){
+
+        applyProfile(existing);
+
+      }
+
+    });
+
+  </script>
+
+</body>
+
+</html>
